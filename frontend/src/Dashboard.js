@@ -81,7 +81,7 @@ export default function Dashboard() {
     if (storedUser) {
         try {
             const userObj = JSON.parse(storedUser);
-            fetch(`http://127.0.0.1:8000/projetos/api/projetos/?usuario=${userObj.id}`)
+            fetch(`https://projeto-desenvolvimento-web-r1mz.onrender.com/projetos/api/projetos/?usuario=${userObj.id}`)
               .then((res) => res.json())
               .then((data) => {
                 setProjetos(Array.isArray(data) ? data : []);
@@ -100,7 +100,7 @@ export default function Dashboard() {
     setLoadingPexels(true);
     try {
         // Chama seu backend Django que protege a chave da API
-        const response = await fetch(`http://127.0.0.1:8000/projetos/api/buscar-imagens/?termo=${termoPexels}`);
+        const response = await fetch(`https://projeto-desenvolvimento-web-r1mz.onrender.com/projetos/api/buscar-imagens/?termo=${termoPexels}`);
         const data = await response.json();
 
         if (data.sucesso) {
@@ -135,7 +135,7 @@ export default function Dashboard() {
     const payload = { ...novoProjeto, usuario: userId };
 
     try {
-        const response = await fetch("http://127.0.0.1:8000/projetos/api/projetos/", {
+        const response = await fetch("https://projeto-desenvolvimento-web-r1mz.onrender.com/projetos/api/projetos/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
@@ -191,7 +191,7 @@ export default function Dashboard() {
     `;
 
     try {
-        const response = await fetch("http://127.0.0.1:8000/projetos/api/gemini-chat/", {
+        const response = await fetch("https://projeto-desenvolvimento-web-r1mz.onrender.com/projetos/api/gemini-chat/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 

@@ -24,7 +24,7 @@ export default function Perfil() {
     const storedUser = JSON.parse(localStorage.getItem('user')); 
     const userId = storedUser?.id || 1; 
 
-    fetch(`http://127.0.0.1:8000/projetos/api/usuarios/${userId}/`)
+    fetch(`https://projeto-desenvolvimento-web-r1mz.onrender.com/projetos/api/usuarios/${userId}/`)
       .then(res => {
         if (!res.ok) throw new Error("Erro ao carregar perfil");
         return res.json();
@@ -43,7 +43,7 @@ export default function Perfil() {
   const handleSalvar = async (e) => {
     e.preventDefault();
     try {
-        const response = await fetch(`http://127.0.0.1:8000/projetos/api/usuarios/${dadosUsuario.id}/`, {
+        const response = await fetch(`https://projeto-desenvolvimento-web-r1mz.onrender.com/projetos/api/usuarios/${dadosUsuario.id}/`, {
             method: "PUT", // Ou PATCH para atualização parcial
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(dadosUsuario)
