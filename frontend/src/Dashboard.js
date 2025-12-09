@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import { PlusCircle, Search, Settings, User, MessageSquare, LogOut, Send, X, Paperclip, Image as ImageIcon } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
-import logo from './logo.png'; 
+import logo from './logo-novo.png';
 
 const COLORS = { primary: "#0F766E", background: "#FAFADB", text: "#2F2E41", white: "#FFFFFF", gray: "#E5E7EB" };
 
