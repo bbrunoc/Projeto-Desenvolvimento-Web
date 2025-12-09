@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, ArrowRight, Briefcase } from 'lucide-react';
 
 // 1. IMPORTANTE: Importe sua logo aqui
-import logo from './logo.png';
+import logo from './logo-novo.png';
 
 export default function Cadastro() {
   const [formData, setFormData] = useState({

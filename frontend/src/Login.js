@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, Lock, ArrowRight } from 'lucide-react';
 
 // 1. IMPORTANTE: Importe sua logo aqui
-import logo from './logo.png';
+import logo from './logo-novo.png';
 
 export default function Login() {
   const [username, setUsername] = useState('');
