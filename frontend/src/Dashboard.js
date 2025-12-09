@@ -1,53 +1,44 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from 'react-markdown'; 
-import { PlusCircle, Search, Settings, User, MessageSquare, LogOut, Send, X, Paperclip, Image as ImageIcon, Download } from "lucide-react";
+import { PlusCircle, Search, Settings, User, MessageSquare, LogOut, Send, X, Paperclip, Image as ImageIcon } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
-// Importa sua logo local
 import logo from './logo.png'; 
 
 const COLORS = { primary: "#0F766E", background: "#FAFADB", text: "#2F2E41", white: "#FFFFFF", gray: "#E5E7EB" };
 
 export default function Dashboard() {
-  // --- ESTADOS GERAIS ---
   const [projetos, setProjetos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [projetoSelecionado, setProjetoSelecionado] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  // --- ESTADOS DO CHAT ---
   const [mensagem, setMensagem] = useState("");
   const [historico, setHistorico] = useState([]); 
   const [loadingIA, setLoadingIA] = useState(false);
   
-  // --- ESTADOS PARA IMAGEM (UPLOAD E PEXELS) ---
-  const [imagemAnexo, setImagemAnexo] = useState(null); // Guarda Base64 ou URL
+  const [imagemAnexo, setImagemAnexo] = useState(null); 
   const fileInputRef = useRef(null);
   
-  // --- NOVOS ESTADOS: INTEGRAÇÃO PEXELS ---
   const [isPexelsModalOpen, setIsPexelsModalOpen] = useState(false);
   const [termoPexels, setTermoPexels] = useState("");
   const [imagensPexels, setImagensPexels] = useState([]);
   const [loadingPexels, setLoadingPexels] = useState(false);
   
-  // REF PARA O SCROLL
   const messagesEndRef = useRef(null);
 
-  // --- ESTADOS DE PESQUISA PROJETOS ---
   const [mostrarBusca, setMostrarBusca] = useState(false);
   const [termoBusca, setTermoBusca] = useState("");
 
-  // --- ESTADO DO FORMULÁRIO PROJETO ---
   const [novoProjeto, setNovoProjeto] = useState({
     nome: "",
     descricao: "",
     publico_alvo: "", 
     tom_marca: "",    
-    usuario: 1 
+    // REMOVIDO: usuario: 1 (Não deixamos mais valor padrão fixo)
   });
 
-  // 1. CARREGAR DADOS
   useEffect(() => {
     const user = localStorage.getItem('user');
     if (!user) {
@@ -57,14 +48,12 @@ export default function Dashboard() {
     }
   }, [navigate]);
 
-  // 2. LIMPAR CHAT AO TROCAR PROJETO
   useEffect(() => {
     setHistorico([]); 
     setImagemAnexo(null);
-    setImagensPexels([]); // Limpa busca do Pexels
+    setImagensPexels([]); 
   }, [projetoSelecionado]);
 
-  // 3. SCROLL AUTOMÁTICO
   const rolarParaBaixo = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -73,14 +62,12 @@ export default function Dashboard() {
     rolarParaBaixo();
   }, [historico, loadingIA, imagemAnexo]);
 
-
-  // --- FUNÇÕES DE API ---
-
   const carregarProjetos = () => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
         try {
             const userObj = JSON.parse(storedUser);
+            // ATENÇÃO: Verifique se sua URL de produção está correta aqui
             fetch(`https://projeto-desenvolvimento-web-r1mz.onrender.com/projetos/api/projetos/?usuario=${userObj.id}`)
               .then((res) => res.json())
               .then((data) => {
@@ -92,14 +79,12 @@ export default function Dashboard() {
     }
   };
 
-  // --- NOVA FUNÇÃO: BUSCAR IMAGENS NO PEXELS (BACKEND) ---
   const handleBuscarPexels = async (e) => {
     e.preventDefault();
     if (!termoPexels) return;
 
     setLoadingPexels(true);
     try {
-        // Chama seu backend Django que protege a chave da API
         const response = await fetch(`https://projeto-desenvolvimento-web-r1mz.onrender.com/projetos/api/buscar-imagens/?termo=${termoPexels}`);
         const data = await response.json();
 
@@ -116,10 +101,9 @@ export default function Dashboard() {
     }
   };
 
-  // --- NOVA FUNÇÃO: SELECIONAR IMAGEM DO PEXELS ---
   const selecionarImagemPexels = (url) => {
-      setImagemAnexo(url); // Define a URL da imagem como anexo
-      setIsPexelsModalOpen(false); // Fecha o modal
+      setImagemAnexo(url); 
+      setIsPexelsModalOpen(false); 
       setTermoPexels("");
       setImagensPexels([]);
   };
@@ -128,11 +112,24 @@ export default function Dashboard() {
     e.preventDefault();
     if (!novoProjeto.nome) { alert("Nome é obrigatório"); return; }
 
+    // --- CORREÇÃO CRÍTICA DE USUÁRIO ---
     const storedUser = localStorage.getItem('user');
-    let userId = 1;
-    if (storedUser) userId = JSON.parse(storedUser).id;
+    
+    if (!storedUser) {
+        alert("Erro: Usuário não logado. Faça login novamente.");
+        navigate('/');
+        return;
+    }
 
-    const payload = { ...novoProjeto, usuario: userId };
+    const userObj = JSON.parse(storedUser);
+    const userId = userObj.id; // Pega o ID REAL do localStorage
+
+    console.log("Tentando criar projeto para Usuário ID:", userId); // DEBUG NO CONSOLE
+
+    const payload = { 
+        ...novoProjeto, 
+        usuario: userId // Garante que envia o ID certo
+    };
 
     try {
         const response = await fetch("https://projeto-desenvolvimento-web-r1mz.onrender.com/projetos/api/projetos/", {
@@ -145,10 +142,13 @@ export default function Dashboard() {
             const criado = await response.json();
             setProjetos([criado, ...projetos]); 
             setIsModalOpen(false);
-            setNovoProjeto({ nome: "", descricao: "", publico_alvo: "", tom_marca: "", usuario: userId });
-            alert("Projeto criado!");
+            setNovoProjeto({ nome: "", descricao: "", publico_alvo: "", tom_marca: "" });
+            alert("Projeto criado com sucesso!");
         } else {
-            alert("Erro ao criar projeto");
+            // Mostra o erro exato que veio do servidor
+            const errorData = await response.json();
+            console.error("Erro API:", errorData);
+            alert("Erro ao criar: " + JSON.stringify(errorData));
         }
     } catch (error) { console.error(error); }
   };
@@ -196,7 +196,7 @@ export default function Dashboard() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 message: contexto,
-                image: imagemAnexo // Pode ser Base64 (Upload) ou URL (Pexels)
+                image: imagemAnexo 
             })
         });
         const data = await response.json();
@@ -221,12 +221,11 @@ export default function Dashboard() {
   return (
     <div style={{ display: "flex", height: "100vh", backgroundColor: COLORS.background, color: COLORS.text, fontFamily: "sans-serif", overflow: "hidden" }}>
       
-      {/* SIDEBAR */}
       <div style={{ width: "80px", backgroundColor: COLORS.primary, display: "flex", flexDirection: "column", alignItems: "center", padding: "20px 0", gap: "30px", zIndex: 10 }}>
         <div style={{ marginBottom: "10px" }}>
-            <img src={logo} alt="Logo" style={{ width: "250px", height: "auto", borderRadius: "8px" }} />
+            <img src={logo} alt="Logo" style={{ width: "50px", height: "auto", borderRadius: "8px" }} />
         </div>
-        <div title="Novo Projeto" onClick={() => setIsModalOpen(true)} style={{ color: COLORS.white, cursor: "pointer" }}><PlusCircle size={28} /></div>
+        <div title="Novo Projeto" onClick={() => setIsModalOpen(true)} style={{ color: COLORS.white, cursor: "pointer" }}><PlusCircle size={32} /></div>
         <div title="Buscar" onClick={() => { setMostrarBusca(!mostrarBusca); if(mostrarBusca) setTermoBusca(""); }} style={{ color: mostrarBusca ? "#F59E0B" : COLORS.white, cursor: "pointer" }}>
             <Search size={28} />
         </div>
@@ -235,10 +234,8 @@ export default function Dashboard() {
         <div title="Sair" onClick={() => { localStorage.removeItem('user'); navigate('/'); }} style={{ color: "#ffcccc", cursor: "pointer", marginBottom: 20 }}><LogOut size={28} /></div>
       </div>
 
-      {/* ÁREA PRINCIPAL */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "20px", gap: "20px", overflow: "hidden" }}>
         
-        {/* LISTA DE PROJETOS */}
         <div style={{ height: "40%", display: "flex", flexDirection: "column", minHeight: "200px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
             <h2 style={{ color: COLORS.primary, margin: 0 }}>{mostrarBusca ? "Filtrando..." : "Meus Projetos"}</h2>
@@ -271,7 +268,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* --- ÁREA DO CHAT COM IA --- */}
         <div style={{ flex: 1, backgroundColor: COLORS.white, borderRadius: "15px", padding: "20px", display: "flex", flexDirection: "column", boxShadow: "0 -2px 10px rgba(0,0,0,0.05)", minHeight: "0" }}>
           
           <div style={{ display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid #eee", paddingBottom: "10px", marginBottom: "10px" }}>
@@ -281,7 +277,6 @@ export default function Dashboard() {
             </span>
           </div>
           
-          {/* MENSAGENS */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "15px", overflowY: "auto", padding: "10px", marginBottom: "10px" }}>
             {!projetoSelecionado && (
                 <p style={{ textAlign: "center", color: "#aaa", marginTop: "40px" }}>Selecione um projeto para começar.</p>
@@ -313,10 +308,8 @@ export default function Dashboard() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* INPUT E BOTÕES */}
           <div style={{ display: "flex", flexDirection: 'column', gap: 5, marginTop: "auto" }}>
             
-            {/* Preview da Imagem Selecionada (Upload ou Pexels) */}
             {imagemAnexo && (
                 <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f0fdf4', padding: '8px 12px', borderRadius: 8, alignSelf: 'flex-start', border: '1px solid #bbf7d0' }}>
                     <img src={imagemAnexo} alt="Preview" style={{ height: 40, width: 40, objectFit: 'cover', borderRadius: 4, marginRight: 10 }} />
@@ -328,7 +321,6 @@ export default function Dashboard() {
             <div style={{ display: "flex", gap: "10px" }}>
                 <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={handleArquivo} />
 
-                {/* BOTÃO CLIPS (UPLOAD LOCAL) */}
                 <button 
                     onClick={() => fileInputRef.current.click()}
                     disabled={!projetoSelecionado || loadingIA}
@@ -338,7 +330,6 @@ export default function Dashboard() {
                     <Paperclip size={20} color="#555" />
                 </button>
 
-                {/* NOVO: BOTÃO IMAGEM (PEXELS API) */}
                 <button 
                     onClick={() => setIsPexelsModalOpen(true)}
                     disabled={!projetoSelecionado || loadingIA}
@@ -369,7 +360,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* MODAL CRIAR PROJETO */}
       {isModalOpen && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
             <div style={{ backgroundColor: "white", padding: "30px", borderRadius: "12px", width: "450px", position: "relative" }}>
@@ -386,13 +376,12 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* NOVO: MODAL BUSCA IMAGENS (PEXELS) */}
       {isPexelsModalOpen && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1100 }}>
             <div style={{ backgroundColor: "white", padding: "30px", borderRadius: "12px", width: "700px", maxHeight: "80vh", display: 'flex', flexDirection: 'column', position: "relative" }}>
                 <button onClick={() => setIsPexelsModalOpen(false)} style={{ position: "absolute", top: "15px", right: "15px", background: "none", border: "none", cursor: "pointer" }}><X size={24} color="#666" /></button>
                 <h2 style={{ color: COLORS.primary, marginBottom: "20px", textAlign: "center", display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                    <ImageIcon/> Banco de Imagens Grátis
+                    <ImageIcon /> Banco de Imagens Grátis
                 </h2>
                 
                 <form onSubmit={handleBuscarPexels} style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
@@ -408,7 +397,6 @@ export default function Dashboard() {
                     </button>
                 </form>
 
-                {/* GRID DE RESULTADOS */}
                 <div style={{ flex: 1, overflowY: "auto", minHeight: "300px", border: "1px solid #eee", borderRadius: "8px", padding: "10px" }}>
                     {imagensPexels.length === 0 && !loadingPexels && (
                         <p style={{ textAlign: 'center', color: '#999', marginTop: 50 }}>Digite um termo para buscar imagens profissionais.</p>
