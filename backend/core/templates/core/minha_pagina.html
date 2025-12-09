@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Minha Página{% endblock %}
+
+{% block content %}
+  <section class="container py-5">
+    <div class="card shadow border-0">
+      <div class="card-body">
+        <h1 class="mb-4 text-primary">Bem-vindo à Minha Página!</h1>
+        <p>Este é um exemplo de página Django que herda seu layout base, utiliza Bootstrap e a paleta personalizada do projeto.</p>
+
+        <div class="mt-4">
+          <a href="/projetos/" class="btn btn-verde">Ver Projetos</a>
+          <a href="/projetos/novo/" class="btn btn-primary">Novo Projeto</a>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

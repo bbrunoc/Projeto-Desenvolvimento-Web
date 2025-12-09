@@ -1,0 +1,9 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+  <section class="text-center mt-5">
+    <h1 class="display-4 text-danger">404 - Página Não Encontrada</h1>
+    <p class="lead">Desculpe, a página que você procura não existe.</p>
+    <a href="{% url 'projeto_list' %}" class="btn btn-primary">Voltar para Início</a>
+  </section>
+{% endblock %}

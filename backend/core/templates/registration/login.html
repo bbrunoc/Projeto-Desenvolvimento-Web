@@ -1,0 +1,21 @@
+{% extends 'core/base.html' %}
+{% block title %}Entrar{% endblock %}
+{% block content %}
+<section class="row justify-content-center py-5">
+  <div class="col-md-4">
+    <h2 class="mb-4">Entrar</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="id_username">Usuário</label>
+        <input type="text" name="username" class="form-control" id="id_username" autofocus required>
+      </div>
+      <div class="mb-3">
+        <label for="id_password">Senha</label>
+        <input type="password" name="password" class="form-control" id="id_password" required>
+      </div>
+      <button type="submit" class="btn btn-verde w-100">Entrar</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

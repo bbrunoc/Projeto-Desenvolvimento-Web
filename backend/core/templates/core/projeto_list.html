@@ -1,0 +1,18 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+  <h1>Lista de Projetos</h1>
+  <a href="{% url 'projeto_create' %}">Novo Projeto</a>
+
+  <ul>
+    {% for projeto in projetos %}
+      <li>
+        {{ projeto.nome }} 
+        - <a href="{% url 'projeto_edit' projeto.pk %}">Editar</a> |
+        <a href="{% url 'projeto_delete' projeto.pk %}">Excluir</a>
+      </li>
+    {% empty %}
+      <li>Nenhum projeto encontrado.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

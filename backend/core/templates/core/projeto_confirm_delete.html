@@ -1,0 +1,10 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2>Confirma exclusão</h2>
+<p>Tem certeza que deseja deletar o projeto "{{ projeto.nome }}"?</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Confirmar</button>
+</form>
+<a href="{% url 'projeto_list' %}">Cancelar</a>
+{% endblock %}

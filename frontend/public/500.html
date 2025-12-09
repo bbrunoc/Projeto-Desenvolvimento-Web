@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Erro Interno do Servidor (500) - Sistema Acadêmico</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* --- Variáveis de Cores e Estilo (IDÊNTICO ÀS OUTRAS TELAS) --- */
+    :root {
+      --color-primary: #0F766E;
+      --color-primary-hover: #0D635D;
+      --color-background: #FAFADB;
+      --color-card-bg: #FFFFFF;
+      --color-text-main: #2F2E41;
+      --color-text-muted: #6B7280;
+      --border-radius: 12px;
+      --shadow: 0 10px 25px -5px rgba(15, 118, 110, 0.1), 0 8px 10px -6px rgba(15, 118, 110, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    /* --- Reset e Estilos Globais --- */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background-color: var(--color-background); color: var(--color-text-main); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+
+    /* --- Card Centralizado --- */
+    .error-card { 
+      background-color: var(--color-card-bg); 
+      padding: 50px 40px; 
+      border-radius: var(--border-radius); 
+      box-shadow: var(--shadow); 
+      width: 100%; 
+      max-width: 420px; 
+      text-align: center; 
+      border-top: 5px solid var(--color-primary); 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+    }
+    
+    /* --- Estilos Específicos de Erro --- */
+    /* Combinação de ícones para representar servidor com problema */
+    .server-error-icon { position: relative; font-size: 80px; color: var(--color-primary); margin-bottom: 24px; opacity: 0.9; display: inline-flex; justify-content: center; align-items: center; }
+    .server-icon { z-index: 1; }
+    .warning-icon { position: absolute; bottom: -10px; right: -10px; font-size: 40px; color: var(--color-primary); background-color: var(--color-card-bg); border-radius: 50%; padding: 2px; }
+
+    .error-code { font-size: 5rem; font-weight: 800; line-height: 1; margin-bottom: 16px; color: var(--color-text-main); }
+    .error-heading { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
+    .error-description { color: var(--color-text-muted); font-size: 1rem; line-height: 1.5; margin-bottom: 32px; }
+    
+    /* --- Botões --- */
+    /* Botão principal: Tentar Novamente (usa button para ação via JS) */
+    .btn-retry { display: inline-flex; align-items: center; justify-content: center; width: 100%; padding: 14px; background-color: var(--color-primary); color: white; border: none; border-radius: var(--border-radius); font-size: 1rem; font-weight: 700; cursor: pointer; transition: var(--transition); }
+    .btn-retry:hover { background-color: var(--color-primary-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3); }
+    .btn-retry .material-icons-outlined { margin-right: 8px; }
+    
+    /* Link secundário: Voltar ao Início */
+    .link-home { display: inline-block; margin-top: 20px; color: var(--color-primary); text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: var(--transition); }
+    .link-home:hover { text-decoration: underline; opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <main class="error-card">
+    <div class="server-error-icon">
+      <span class="material-icons-outlined server-icon">dns</span>
+      <span class="material-icons-outlined warning-icon">warning_amber</span>
+    </div>
+    
+    <h1 class="error-code">500</h1>
+    <h2 class="error-heading">Erro Interno do Servidor.</h2>
+    
+    <p class="error-description">
+      Desculpe, algo deu errado do nosso lado. Estamos trabalhando para corrigir. Por favor, tente novamente em instantes.
+    </p>
+
+    <button class="btn-retry" onclick="window.location.reload();">
+      <span class="material-icons-outlined">refresh</span>
+      TENTAR NOVAMENTE
+    </button>
+    
+    <a href="/" class="link-home">Voltar ao Início</a>
+  </main>
+</body>
+</html>

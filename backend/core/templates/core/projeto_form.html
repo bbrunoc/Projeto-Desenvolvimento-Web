@@ -1,0 +1,16 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2>{% if form.instance.pk %}Editar{% else %}Novo{% endif %} Projeto</h2>
+<form method="post">
+  {% csrf_token %}
+  {% if form.errors %}
+    <div class="alert alert-danger">
+      {{ form.errors }}
+    </div>
+  {% endif %}
+  {{ form.as_p }}
+  <button type="submit">Salvar</button>
+</form>
+<a href="{% url 'projeto_list' %}">Voltar à lista</a>
+{% endblock %}
+ 
