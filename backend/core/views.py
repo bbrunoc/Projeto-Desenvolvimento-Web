@@ -72,30 +72,37 @@ def gemini_chat(request):
         try:
             data = json.loads(request.body)
             user_message = data.get('message', '')
-            image_data = data.get('image')
 
-            prompt = f"Você é um assistente especialista em marketing. {user_message}"
-            inputs = [prompt]
+            # Lista de modelos para tentar (do mais novo para o mais antigo)
+            modelos_para_tentar = ["gemini-1.5-flash", "gemini-pro", "gemini-1.0-pro"]
+            
+            resposta_final = None
+            ultimo_erro = None
 
-            if image_data:
+            # Tenta um por um até funcionar
+            for nome_modelo in modelos_para_tentar:
                 try:
-                    if "base64," in image_data:
-                        image_data = image_data.split("base64,")[1]
-                    image_bytes = base64.b64decode(image_data)
-                    image = Image.open(io.BytesIO(image_bytes))
-                    inputs.append(image)
-                except Exception as img_err:
-                    print(f"Erro na imagem: {img_err}")
+                    print(f"Tentando modelo: {nome_modelo}...")
+                    model = genai.GenerativeModel(nome_modelo)
+                    response = model.generate_content(f"Você é um assistente de marketing. {user_message}")
+                    resposta_final = response.text
+                    break # Se deu certo, para o loop
+                except Exception as e:
+                    print(f"Falha no modelo {nome_modelo}: {e}")
+                    ultimo_erro = str(e)
+                    continue # Tenta o próximo
 
-            response = model.generate_content(inputs)
-            return JsonResponse({'response': response.text})
+            if resposta_final:
+                return JsonResponse({'response': resposta_final})
+            else:
+                # Se todos falharem, devolve o erro real para o Frontend ver
+                return JsonResponse({'response': f"Erro no servidor IA: {ultimo_erro}. Verifique sua API Key e Cotas."}, status=200)
 
         except Exception as e:
-            return JsonResponse({'response': f"Erro: {str(e)}"}, status=200)
+            return JsonResponse({'response': f"Erro interno: {str(e)}"}, status=200)
 
     return JsonResponse({'error': 'Método não permitido'}, status=405)
 
-# --- AQUI ESTÁ A CORREÇÃO DO LOGIN ---
 @csrf_exempt
 def api_login(request):
     if request.method == 'POST':
