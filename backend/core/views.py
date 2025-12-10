@@ -33,7 +33,7 @@ if not api_key:
 else:
     genai.configure(api_key=api_key)
 
-model = genai.GenerativeModel("gemini-1.5-flash") # Ajustei para o modelo padrão estável
+model = genai.GenerativeModel("gemini-pro") 
 
 # --- VIEWS DA API ---
 
