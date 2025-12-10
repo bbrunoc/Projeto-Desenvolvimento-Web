@@ -10,7 +10,7 @@ django-bootstrap4==25.3
 django-cors-headers==4.9.0
 django-filter==25.2
 djangorestframework==3.16.1
-google-ai-generativelanguage==0.6.15
+google-ai-generativelanguage==0.6.9
 google-api-core==2.28.1
 google-api-python-client==2.187.0
 google-auth==2.43.0
