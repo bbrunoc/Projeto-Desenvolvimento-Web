@@ -33,7 +33,8 @@ if not api_key:
 else:
     genai.configure(api_key=api_key)
 
-model = genai.GenerativeModel("gemini-pro") 
+
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 # --- VIEWS DA API ---
 
