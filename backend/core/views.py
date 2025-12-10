@@ -33,8 +33,8 @@ if not api_key:
 else:
     genai.configure(api_key=api_key)
 
-
-model = genai.GenerativeModel("gemini-pro")
+# NOTA: Removemos a definição global de 'model' aqui para evitar erros na inicialização.
+# O modelo será escolhido dinamicamente dentro da função gemini_chat.
 
 # --- VIEWS DA API ---
 
@@ -73,33 +73,36 @@ def gemini_chat(request):
             data = json.loads(request.body)
             user_message = data.get('message', '')
 
-            # Lista de modelos para tentar (do mais novo para o mais antigo)
-            modelos_para_tentar = ["gemini-1.5-flash", "gemini-pro", "gemini-1.0-pro"]
+            # --- SOLUÇÃO DEFINITIVA PARA ERRO 404 ---
+            # Em vez de adivinhar o nome ("gemini-pro", "v1", "1.5"), 
+            # perguntamos API quais modelos estão disponíveis para esta chave.
             
-            resposta_final = None
-            ultimo_erro = None
+            modelo_escolhido = None
+            
+            try:
+                for m in genai.list_models():
+                    # Procura um modelo que suporte geração de texto ('generateContent')
+                    if 'generateContent' in m.supported_generation_methods:
+                        modelo_escolhido = m.name # Ex: 'models/gemini-1.5-flash-001'
+                        print(f"Modelo encontrado e selecionado: {modelo_escolhido}")
+                        break
+            except Exception as e:
+                 return JsonResponse({'response': f"Erro ao listar modelos: {str(e)}"}, status=200)
 
-            # Tenta um por um até funcionar
-            for nome_modelo in modelos_para_tentar:
-                try:
-                    print(f"Tentando modelo: {nome_modelo}...")
-                    model = genai.GenerativeModel(nome_modelo)
-                    response = model.generate_content(f"Você é um assistente de marketing. {user_message}")
-                    resposta_final = response.text
-                    break # Se deu certo, para o loop
-                except Exception as e:
-                    print(f"Falha no modelo {nome_modelo}: {e}")
-                    ultimo_erro = str(e)
-                    continue # Tenta o próximo
+            if not modelo_escolhido:
+                return JsonResponse({'response': "Erro: Nenhum modelo compatível encontrado na sua API Key."}, status=200)
 
-            if resposta_final:
-                return JsonResponse({'response': resposta_final})
-            else:
-                # Se todos falharem, devolve o erro real para o Frontend ver
-                return JsonResponse({'response': f"Erro no servidor IA: {ultimo_erro}. Verifique sua API Key e Cotas."}, status=200)
+            # Instancia o modelo com o nome exato que a API devolveu
+            model = genai.GenerativeModel(modelo_escolhido)
+            
+            # Gera a resposta
+            prompt = f"Você é um assistente de marketing. {user_message}"
+            response = model.generate_content(prompt)
+            
+            return JsonResponse({'response': response.text})
 
         except Exception as e:
-            return JsonResponse({'response': f"Erro interno: {str(e)}"}, status=200)
+            return JsonResponse({'response': f"Erro interno na IA: {str(e)}"}, status=200)
 
     return JsonResponse({'error': 'Método não permitido'}, status=405)
 
